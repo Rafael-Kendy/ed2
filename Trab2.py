@@ -1,3 +1,4 @@
+#python Trab2.py input1.txt op1.txt temp0.txt output0.txt
 import sys
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 class Game:
@@ -23,7 +24,11 @@ class Game:
     def chaveJogo(self):
         chave = (self.nome+self.ano).upper()
         return ''.join(chave.split())
-            
+    
+    def setNome(self, nome):
+        self.nome = nome
+    def getNome(self):
+        return (self.nome)
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def procuraRegistro(nome=None, ano=None, registros=None, chave=None):
     if registros is None:
@@ -38,9 +43,11 @@ def procuraRegistro(nome=None, ano=None, registros=None, chave=None):
             return i, game
     return None
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-def removeRegistro(arq=None, nome=None, ano=None, registros=None, chave=None):
+def removeRegistro(arq=None, nome=None, ano=None, registros=None, chave=None, espacos_reusaveis=None):
     rrn, registro = procuraRegistro(nome, ano, registros, chave)
-    print(f"{rrn} - {registro}")
+    registros[rrn-1].setNome(f"*{espacos_reusaveis}{registro.getNome()}")
+    espacos_reusaveis = rrn
+    print(registros[rrn-1])
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def processarOperacoes(entrada, operacoes, temporario, saida_final):
     registros = []
@@ -72,13 +79,13 @@ def processarOperacoes(entrada, operacoes, temporario, saida_final):
     #deleta
         elif partes[0] == 'd':
             if procuraRegistro(None, None, registros, partes[1][1:].strip())!=None:
-                removeRegistro(entrada, None, None, registros, partes[1][1:].strip())
+                removeRegistro(entrada, None, None, registros, partes[1][1:].strip(), espacos_reusaveis)
 
     #escreve o final
-    with open(saida_final, 'w') as arquivo:
-        for game in registros:
-            registro=f"{game.nome}|{game.produtora}|{game.genero}|{game.plataforma}|{game.ano}|{game.classificacao}|{game.preco}|{game.midia}|{game.tamanho}"
-            arquivo.write(registro+'\n')
+#    with open(saida_final, 'w') as arquivo:
+#        for game in registros:
+#            registro=f"{game.nome}|{game.produtora}|{game.genero}|{game.plataforma}|{game.ano}|{game.classificacao}|{game.preco}|{game.midia}|{game.tamanho}"
+#            arquivo.write(registro+'\n')
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 if __name__ == '__main__':
     if len(sys.argv) != 5:
