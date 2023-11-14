@@ -25,19 +25,34 @@ class Game:
         return ''.join(chave.split())
             
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-def procuraRegistro():
-    
+def procuraRegistro(nome=None, ano=None, registros=None, chave=None):
+    if registros is None:
+        return None
+    if chave is None:
+        novo_registro = (nome.strip() + ano.strip()).upper()
+        novo_registro = ''.join(novo_registro.split())
+    else:
+        novo_registro = chave
+    for i, game in enumerate(registros, start=1):
+        if novo_registro == game.chaveJogo():
+            return i, game
+    return None
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def removeRegistro(arq=None, nome=None, ano=None, registros=None, chave=None):
+    rrn, registro = procuraRegistro(nome, ano, registros, chave)
+    print(f"{rrn} - {registro}")
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def processarOperacoes(entrada, operacoes, temporario, saida_final):
     registros = []
-
+    #le o cabecalho e joga os registro na ram
     with open(entrada, 'r') as file:
         cabecalho = file.readline().strip()
         for linha in file:
             dados=linha.strip().split('|')
             game=Game(dados[0], dados[1], dados[2], dados[3], dados[4], dados[5], dados[6], dados[7], dados[8])
             registros.append(game)
-
+            
+    #arruma o cabecalho nas variavel
     partes_cabecalho = cabecalho.split()
     for parte in partes_cabecalho:
         if 'REG.N=' in parte:
@@ -45,33 +60,32 @@ def processarOperacoes(entrada, operacoes, temporario, saida_final):
         elif 'TOP=' in parte:
             espacos_reusaveis = int(parte.split('=')[1])
 
+    #faz as op
     for operacao in operacoes:
         partes = operacao.split(',')
+    #insere
         if partes[0] == 'i':
-            novo_registro = (partes[1].strip()+partes[5].strip()).upper()
-            novo_registro = ''.join(novo_registro.split())
-            chave_existente = any(novo_registro == game.chaveJogo() for game in registros)
-            if chave_existente==False:
+            if procuraRegistro(partes[1], partes[5], registros, None)==None:
                 partes[1] = partes[1][1:] #tira o espaco q ta no comeco
                 game=Game(partes[1], partes[2], partes[3], partes[4], partes[5], partes[6], partes[7], partes[8], partes[9])
                 registros.append(game)
-            
+    #deleta
         elif partes[0] == 'd':
-            chave_deleta = partes[1]
-            chave_deleta = chave_deleta[1:].strip()
-            chave_existente = any(chave_deleta == game.chaveJogo() for game in registros)
-            if chave_existente==True:
-                removeRegistro(entrada, chave_deleta)
-        
+            if procuraRegistro(None, None, registros, partes[1][1:].strip())!=None:
+                removeRegistro(entrada, None, None, registros, partes[1][1:].strip())
 
-
-
+    #escreve o final
+    with open(saida_final, 'w') as arquivo:
+        for game in registros:
+            registro=f"{game.nome}|{game.produtora}|{game.genero}|{game.plataforma}|{game.ano}|{game.classificacao}|{game.preco}|{game.midia}|{game.tamanho}"
+            arquivo.write(registro+'\n')
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 if __name__ == '__main__':
     if len(sys.argv) != 5:
         print("Uso: python programa.py [arquivo de entrada] [arquivo de operacoes] [arquivo de saida temporario] [arquivo de saida final]")
         sys.exit(1)
 
+    #Pega os nome
     entrada = sys.argv[1]
     operacoes = []
     with open(sys.argv[2], 'r') as op_file:
