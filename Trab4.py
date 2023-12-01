@@ -52,8 +52,6 @@ def leCSV(entrada, database, tupla_primaria, tupla_nome, tupla_album, tupla_arti
         print(f"Erro ao fazer a leitura do arquivo '{arq}' - {e}")
         sys.exit(1)
         
-    tupla_primaria = sorted(tupla_primaria)
-    tupla_nome = sorted(tupla_nome)
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def criaArqTuplas(tupla_primaria, tupla_nome):
     with open("indicesPrimarios.txt", 'w') as arq:
@@ -94,5 +92,7 @@ if __name__ == '__main__':
     leCSV(entrada, database, tupla_primaria, tupla_nome, tupla_album, tupla_artists, tupla_track_number, tupla_disc_number, 
           tupla_explicit, tupla_key, tupla_mode, tupla_year)
     
+    tupla_primaria = sorted(tupla_primaria)
+    tupla_nome = sorted(tupla_nome)
     criaArqTuplas(tupla_primaria, tupla_nome)
     
